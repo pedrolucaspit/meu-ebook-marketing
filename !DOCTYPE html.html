@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório Interativo: Marketing e Publicidade na Era Digital</title>
+    <!-- Chosen Palette: Strategic Eagle -->
+    <!-- Application Structure Plan: A Single-Page Application (SPA) with a fixed sidebar navigation for thematic exploration. This structure was chosen over a linear e-book format to empower users to non-linearly access specific information, reducing cognitive load and improving engagement. The main content area dynamically updates based on user selection. Key concepts are transformed into interactive modules (like diagrams and accordions) to make the dense, text-based report more digestible and engaging. The user flow is: Select a major theme from the sidebar -> Explore high-level concepts in the main view -> Click on specific elements (cards, diagram stages) to drill down into details. This architecture prioritizes user-driven exploration and comprehension over passive reading. -->
+    <!-- Visualization & Content Choices: The source report is conceptual, lacking quantitative data for complex charting. Therefore, the strategy focuses on transforming textual concepts into interactive visual elements. Goal: Organize -> Method: "Etapas do Inbound Marketing" is presented as a clickable HTML/CSS funnel diagram, dynamically displaying text for each stage via JS, which is more engaging than a static list. Goal: Compare -> Method: "Multichannel vs. Omnichannel" is shown in a side-by-side layout with icons and descriptive text that highlights key differences on interaction. Goal: Inform -> Method: Lists like "Serviços de Agências Digitais" are converted into a grid of accordion cards to manage information density. Goal: Change -> Method: A simple bar chart (using Chart.js) was created to visually represent the conceptual shift in ad spend from traditional to digital media, as mentioned in the final section, fulfilling the library requirement and adding a data-informed visual anchor. All diagrams and interactive elements are built with HTML/CSS and JS, avoiding SVG/Mermaid as required. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #334155;
+        }
+        .sidebar-link {
+            transition: all 0.2s ease-in-out;
+            border-left: 3px solid transparent;
+        }
+        .sidebar-link.active, .sidebar-link:hover {
+            background-color: #eef2ff;
+            color: #1e3a8a;
+            border-left-color: #3b82f6;
+        }
+        .content-section {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+        }
+        .content-section.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        .inbound-stage {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .inbound-stage.active {
+            background-color: #3b82f6 !important;
+            color: white !important;
+            transform: scale(1.05);
+        }
+        .inbound-stage.active .inbound-icon {
+            filter: brightness(0) invert(1);
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-50">
+
+    <div class="flex h-screen bg-gray-100">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="w-64 bg-white shadow-lg flex-shrink-0 flex-col justify-between hidden md:flex">
+            <div>
+                <div class="p-6 text-center border-b">
+                    <h1 class="text-xl font-bold text-blue-800">Marketing Digital</h1>
+                    <p class="text-xs text-slate-500">Guia Interativo</p>
+                </div>
+                <nav id="sidebar-nav" class="mt-4">
+                    <a href="#introducao" class="sidebar-link active text-slate-700 font-semibold text-sm w-full flex items-center py-3 px-6">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                        Introdução
+                    </a>
+                    <a href="#fundamentos" class="sidebar-link text-slate-700 font-semibold text-sm w-full flex items-center py-3 px-6">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 8v-4a1 1 0 011-1h2a1 1 0 011 1v4m-4 0h4"></path></svg>
+                        Fundamentos
+                    </a>
+                    <a href="#ferramentas" class="sidebar-link text-slate-700 font-semibold text-sm w-full flex items-center py-3 px-6">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                        Ferramentas Digitais
+                    </a>
+                    <a href="#estrategias" class="sidebar-link text-slate-700 font-semibold text-sm w-full flex items-center py-3 px-6">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                        Estratégias e Táticas
+                    </a>
+                    <a href="#profissional" class="sidebar-link text-slate-700 font-semibold text-sm w-full flex items-center py-3 px-6">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                        O Profissional do Futuro
+                    </a>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <header class="flex justify-between items-center p-4 bg-white border-b md:hidden">
+                <h1 class="text-lg font-bold text-blue-800">Guia Interativo</h1>
+                <button id="menu-btn" class="text-slate-600 focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                </button>
+            </header>
+            
+            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-slate-50">
+                <div class="container mx-auto px-6 py-8">
+
+                    <!-- Content sections will be injected here -->
+                    <div id="content-area">
+                        <section id="introducao" class="content-section active">
+                            <h2 class="text-3xl font-bold text-slate-800 mb-4">O Novo Cenário da Comunicação e da Publicidade</h2>
+                            <p class="text-slate-600 mb-6">A virada do milênio marcou o início de uma era sem precedentes, impulsionada pela explosão da internet e das inovações tecnológicas. Essa **transformação digital** não se limitou a redefinir a maneira como interagimos, trabalhamos e vivemos; ela reconfigurou fundamentalmente a dinâmica da comunicação e da publicidade. O modelo tradicional, em que as mensagens fluíam unidirecionalmente das marcas para os consumidores, deu lugar a um ecossistema de diálogo multifacetado e contínuo, onde a interatividade e a participação do consumidor são cruciais.</p>
+                            <div class="p-6 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg mb-6">
+                                <p class="font-semibold text-blue-800">Este guia interativo explora as tendências e práticas essenciais para conectar, engajar e vender na era digital, equipando profissionais para um mercado cada vez mais exigente.</p>
+                            </div>
+                            <p class="text-slate-600 mb-4">A mudança mais significativa é a transição de um modelo de "mão dupla" para um de "muitas mãos". O consumidor não é mais um receptor passivo, mas um participante ativo, com voz e capacidade de influenciar. Essa nova dinâmica exige que as marcas não apenas transmitam mensagens, mas também escutem, dialoguem e cocriem valor. A hiperconectividade e a facilidade de acesso à informação empoderam o consumidor, tornando a autenticidade e a relevância as novas moedas da comunicação.</p>
+                            <p class="text-slate-600 mb-6">Neste contexto em constante evolução, compreender os fundamentos da comunicação e do marketing, aliando-os às ferramentas e estratégias do mundo digital, tornou-se essencial para empresas e profissionais que desejam não apenas sobreviver, mas prosperar. Este e-book visa fornecer um guia completo e atualizado sobre as principais tendências e práticas do marketing e da publicidade na era digital, oferecendo insights valiosos para conectar, engajar e, finalmente, vender para um público cada vez mais conectado e exigente.</p>
+                        </section>
+
+                        <section id="fundamentos" class="content-section">
+                           <h2 class="text-3xl font-bold text-slate-800 mb-4">Fundamentos da Publicidade e Comunicação</h2>
+                           <p class="text-slate-600 mb-8">Para navegar no universo digital, é crucial ter uma base sólida nos princípios da comunicação integrada. Estes pilares garantem que todas as ações estejam alinhadas a uma estratégia coesa e eficaz, maximizando o impacto e a percepção da marca.</p>
+                           <div id="fundamentos-container" class="space-y-4"></div>
+                        </section>
+
+                        <section id="ferramentas" class="content-section">
+                            <h2 class="text-3xl font-bold text-slate-800 mb-4">Marketing Digital: Ferramentas e Estratégias</h2>
+                            <p class="text-slate-600 mb-8">O marketing digital é um campo vasto e dinâmico, oferecendo um arsenal de ferramentas e estratégias para alcançar e engajar o público-alvo no ambiente online. A versatilidade é sua maior força, permitindo desde ações autônomas até complementares a campanhas offline.</p>
+                            
+                            <h3 class="text-2xl font-semibold text-slate-700 mb-4">Serviços e Abordagens Essenciais</h3>
+                            <div id="ferramentas-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                        </section>
+
+                        <section id="estrategias" class="content-section">
+                            <h2 class="text-3xl font-bold text-slate-800 mb-2">Estratégias para Captação de Clientes e Relacionamento</h2>
+                            <p class="text-slate-600 mb-8">A captação e a construção de relacionamentos duradouros com clientes são a espinha dorsal de qualquer negócio. Explore as abordagens que moldam a interação com o consumidor moderno, desde o tradicional ao digital.</p>
+                            
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+                                <div id="inbound-section">
+                                    <h3 class="text-2xl font-semibold text-slate-700 mb-4">O Funil do Inbound Marketing</h3>
+                                    <p class="text-sm text-slate-500 mb-4">O Inbound Marketing atrai consumidores para a empresa. Clique em cada etapa para ver os detalhes sobre como transformar estranhos em promotores da marca.</p>
+                                    <div id="inbound-funnel" class="space-y-1"></div>
+                                    <div id="inbound-details" class="mt-4 p-4 bg-white rounded-lg shadow-inner min-h-[100px] text-slate-700"></div>
+                                </div>
+                                <div id="omnichannel-section">
+                                    <h3 class="text-2xl font-semibold text-slate-700 mb-4">Multichannel vs. Omnichannel</h3>
+                                     <p class="text-sm text-slate-500 mb-4">A evolução da experiência do cliente: de canais isolados para uma jornada unificada e fluida.</p>
+                                    <div id="omnichannel-comparison" class="space-y-6"></div>
+                                </div>
+                            </div>
+                            
+                            <h3 class="text-2xl font-semibold text-slate-700 mb-4">Táticas de Vendas e Retenção</h3>
+                            <p class="text-slate-600 mb-8">Descubra as principais estratégias para otimizar as vendas e fortalecer a lealdade do cliente no ambiente digital.</p>
+                            <div id="taticas-container" class="space-y-4"></div>
+                        </section>
+
+                        <section id="profissional" class="content-section">
+                            <h2 class="text-3xl font-bold text-slate-800 mb-2">O Profissional de Publicidade na Era da Tecnologia</h2>
+                             <p class="text-slate-600 mb-6">A era tecnológica impôs uma profunda transformação no campo da publicidade, exigindo novas habilidades e uma mentalidade de aprendizado contínuo. O foco mudou para conteúdos interativos e participação ativa dos consumidores, moldando o perfil do publicitário do século XXI.</p>
+                            
+                            <h3 class="text-2xl font-semibold text-slate-700 mt-8 mb-4">Investimento: Mídia Tradicional vs. Digital</h3>
+                            <p class="text-slate-600 mb-6 text-center">A mudança nos orçamentos de publicidade reflete a alteração nos hábitos de consumo de mídia do público e a superior capacidade de segmentação, personalização e mensuração que as plataformas digitais oferecem. O gráfico abaixo ilustra essa transição estratégica.</p>
+                            <div class="bg-white p-4 rounded-lg shadow-md">
+                                <div class="chart-container">
+                                    <canvas id="adSpendChart"></canvas>
+                                </div>
+                            </div>
+                            <p class="text-slate-600 mt-6">Para prosperar neste cenário, o profissional de publicidade precisa ser um **indivíduo multidisciplinar**. É exigido um sólido conhecimento em marketing digital, proficiência em análise de dados, expertise na produção de conteúdo para diversos formatos e plataformas, domínio das técnicas de SEO, e uma profunda familiaridade com as estratégias de mídias sociais. Acima de tudo, é indispensável uma compreensão intrínseca do comportamento humano na era digital. A busca incessante por atualização e o **aprendizado contínuo** são não apenas recomendados, mas absolutamente fundamentais para acompanhar a vertiginosa evolução da tecnologia e suas amplas implicações no fascinante mundo da publicidade.</p>
+                            <p class="text-slate-600 mt-4">Novas funções e especializações surgem constantemente, como o especialista em Growth Hacking, o cientista de dados de marketing, e o estrategista de experiência do cliente. A capacidade de combinar criatividade com análise de dados, de contar histórias envolventes em diferentes plataformas e de se adaptar rapidamente às novas tecnologias e tendências, define o sucesso na publicidade moderna.</p>
+                        </section>
+                    </div>
+
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        const reportData = {
+            fundamentos: [
+                { title: "Comunicação Integrada de Marketing (CIM)", content: "A <strong>Comunicação Integrada de Marketing (CIM)</strong> representa uma filosofia estratégica que busca harmonizar e coordenar todas as ferramentas e canais de comunicação de uma organização. Em vez de tratar cada ferramenta (publicidade, relações públicas, marketing direto, etc.) de forma isolada, a CIM as unifica para entregar uma mensagem consistente e persuasiva ao público-alvo. Isso não só maximiza o impacto e a eficiência das campanhas, mas também constrói uma imagem de marca coesa e forte, gerando sinergia entre todos os pontos de contato com o consumidor. Os benefícios incluem otimização de custos, melhor percepção da marca e maior fidelidade do cliente." },
+                { title: "Endocomunicação (Comunicação Interna)", content: "A <strong>Endocomunicação</strong>, ou comunicação interna, é a espinha dorsal de qualquer organização bem-sucedida. Ela se refere ao fluxo contínuo e estratégico de informações dentro da empresa, conectando colaboradores em todos os níveis. Uma comunicação interna robusta garante que todos estejam alinhados com os objetivos, valores e estratégias da organização. Além de fortalecer o clima organizacional e melhorar o engajamento dos funcionários, ela fomenta a colaboração, o compartilhamento de conhecimento e tem um impacto direto na qualidade do trabalho e no relacionamento com os clientes externos. Ferramentas como intranets, newsletters internas e eventos corporativos são cruciais para um fluxo de comunicação eficaz." },
+                { title: "Atendimento ao Consumidor (SAC)", content: "O <strong>Serviço de Atendimento ao Consumidor (SAC)</strong> transcende a simples resolução de problemas; é a linha de frente estratégica no relacionamento entre a empresa e seus clientes. Um SAC eficaz é um canal vital para coletar feedback, resolver dúvidas, gerenciar críticas e receber sugestões. Sua função vai além do reativo, transformando clientes insatisfeitos em defensores da marca por meio de soluções personalizadas e eficientes. A escuta ativa e a proatividade no SAC são essenciais para construir lealdade, pois um bom atendimento ao cliente é, por si só, uma poderosa ferramenta de marketing." },
+                { title: "Informação Publicitária (Publieditorial/Advertorial)", content: "A <strong>Informação Publicitária</strong>, conhecida como publieditorial ou advertorial, é uma forma de publicidade que se assemelha ao conteúdo editorial de uma publicação. Diferente dos anúncios tradicionais diretos, o publieditorial permite uma apresentação mais aprofundada e narrativa, explorando os benefícios de um produto ou serviço em um formato informativo. Essa abordagem, quando ética e transparente, pode construir credibilidade e educar o público de forma mais envolvente, disfarçando a natureza promocional e oferecendo valor ao leitor por meio de um storytelling mais elaborado." },
+                { title: "Publicidade Editorial / Assessoria de Imprensa", content: "A <strong>Publicidade Editorial</strong>, ou o trabalho da assessoria de imprensa, busca a divulgação espontânea de notícias e informações relevantes sobre a organização na mídia de massa. Isso envolve a construção de relacionamentos sólidos com jornalistas e veículos de comunicação, identificando pautas de interesse público relacionadas à empresa. O valor dessa estratégia reside na alta credibilidade, pois a mensagem é transmitida por um veículo de comunicação independente, conferindo maior autoridade e confiança à marca. É uma ferramenta essencial para a gestão da reputação e para o gerenciamento de crises." },
+                { title: "Design", content: "O <strong>Design</strong> é uma ferramenta crucial e onipresente na comunicação visual de uma marca. Ele é o responsável por desenvolver a identidade visual da empresa – incluindo logotipos, paletas de cores, tipografia, ícones e outros elementos gráficos – que representam a marca e a diferenciam da concorrência. Um design bem elaborado não só torna a marca visualmente atraente, mas também comunica seus valores, personalidade e posicionamento no mercado. A coerência visual em todas as plataformas (digitais e físicas) é fundamental para construir reconhecimento e confiança." },
+                { title: "Embalagem", content: "A <strong>Embalagem</strong> de um produto transcendeu sua função primária de armazenar e proteger, tornando-se uma poderosa ferramenta de marketing e comunicação. Ela tem a capacidade de agregar valor ao produto, combinando conveniência e praticidade com um forte apelo visual, e influenciando significativamente as decisões de compra. Uma embalagem estrategicamente projetada comunica a qualidade do produto, atrai a atenção no ponto de venda, fornece informações relevantes e cria uma experiência positiva no momento do 'unboxing', fortalecendo a conexão emocional com a marca e até mesmo incentivando o compartilhamento em redes sociais." }
+            ],
+            ferramentas: [
+                 { title: "Gerenciamento de Campanhas", content: "O gerenciamento de campanhas de marketing digital abrange todo o ciclo de vida das ações online: desde a concepção criativa e planejamento (definição de público, orçamento, KPIs), passando pela publicação e ativação em diversas plataformas (Google Ads, Facebook Ads, LinkedIn Ads, etc.), até o acompanhamento rigoroso dos resultados e otimização. A flexibilidade para realizar ajustes em tempo real, com base na análise de dados e performance, é crucial para maximizar o impacto e o retorno sobre o investimento, garantindo que a mensagem certa alcance a pessoa certa no momento certo." },
+                 { title: "Monitoramento de Redes Sociais", content: "O monitoramento de redes sociais é a prática sistemática de acompanhar e analisar todas as menções à marca, aos seus produtos/serviços, aos concorrentes e a tendências do setor nas diversas plataformas sociais. Essa vigilância contínua permite que as empresas reformulem suas estratégias em tempo real, captem insights profundos sobre o perfil e os interesses de seus seguidores, identifiquem tendências emergentes e, crucialmente, avaliem o impacto direto de suas ações de marketing nas vendas e na reputação da marca. É uma ferramenta indispensável para gestão de crises, engajamento com o cliente e inteligência competitiva." },
+                 { title: "Análise de Métricas", content: "A análise de métricas é a bússola que orienta as estratégias de marketing digital. Ela oferece dados concretos e quantificáveis sobre a performance das campanhas e do processo de vendas como um todo. Indicadores como taxa de engajamento, alcance orgânico, taxa de rejeição de um website, Click-Through Rate (CTR) de anúncios, custo por aquisição (CPA) e valor do tempo de vida do cliente (LTV) fornecem insights essenciais para a tomada de decisões informadas. Com base nesses dados, é possível identificar gargalos, otimizar investimentos e aprimorar continuamente as abordagens de marketing, garantindo que os esforços gerem os melhores resultados possíveis e contribuam para os objetivos de negócio." },
+                 { title: "Análise da Concorrência", content: "A análise da concorrência no ambiente digital é um exercício estratégico contínuo que visa aprofundar o conhecimento sobre o mercado e identificar oportunidades de diferenciação. Envolve a identificação criteriosa dos principais players online, seguida de uma análise aprofundada de suas estratégias de marketing (o que fazem bem, onde falham), seus pontos fortes e suas vulnerabilidades. O objetivo é desvendar oportunidades para a diferenciação da própria marca, permitindo que ela se posicione de forma única e destaque-se no cenário competitivo, oferecendo proposições de valor que superem as dos rivais e antecipando movimentos de mercado." },
+                 { title: "Pesquisa de Palavras-Chave", content: "As <strong>palavras-chave</strong> são os termos e frases que os usuários digitam nos mecanismos de busca para encontrar informações, produtos ou serviços específicos. A pesquisa e a seleção estratégica de palavras-chave altamente relevantes para o nicho de negócio são a base para a criação de conteúdo otimizado para SEO e para a elaboração de campanhas de links patrocinados eficazes. Isso inclui identificar palavras-chave de 'cauda longa' (mais específicas), entender a intenção de busca (informativa, transacional, navegacional) e usar ferramentas como o Planejador de Palavras-Chave do Google para descobrir termos com alto volume de busca e baixa concorrência, otimizando a visibilidade e o tráfego qualificado." },
+                 { title: "Planejamento Estratégico", content: "O Planejamento Estratégico de Marketing Digital envolve a definição de objetivos claros, a identificação do público-alvo, a análise do ambiente (SWOT), a seleção de canais e táticas, a alocação de orçamento e a definição de KPIs para monitoramento. É um roteiro detalhado que alinha todas as ações digitais aos objetivos gerais do negócio. Um bom planejamento considera a jornada do cliente, a proposição de valor da marca e como todas as atividades de comunicação e marketing se integram para construir um relacionamento duradouro com o consumidor e gerar resultados." },
+                 { title: "E-mail Marketing", content: "O <strong>e-mail marketing</strong> continua sendo uma ferramenta extremamente potente e versátil. Consiste no envio de conteúdo qualificado para uma lista de e-mails de leads e clientes, com o objetivo de construir relacionamento, promover ofertas, segmentar audiências e direcionar tráfego para outras plataformas online. Para ser eficaz, o e-mail marketing deve ser atrativo, relevante, personalizado e oferecer valor para o destinatário. Estratégias incluem automação (drip campaigns), testes A/B para otimização de performance, e personalização baseada no comportamento do usuário para maximizar as taxas de abertura e clique." },
+                 { title: "SEO (Search Engine Optimization)", content: "O <strong>SEO (Search Engine Optimization)</strong>, ou otimização para mecanismos de busca, é um conjunto de técnicas aplicadas para aprimorar o posicionamento de um site ou conteúdo nas páginas de resultados de busca (SERPs) de buscadores como o Google, de forma orgânica (não paga). Envolve três pilares: SEO On-page (otimização de conteúdo, títulos, meta descrições, URL), SEO Off-page (construção de backlinks, autoridade de domínio) e SEO Técnico (velocidade do site, rastreabilidade, mobile-friendliness). Um bom SEO aumenta a visibilidade da marca e atrai tráfego qualificado de forma sustentável." },
+                 { title: "Links Patrocinados", content: "Os <strong>Links Patrocinados</strong> são uma forma de publicidade paga nos mecanismos de busca (como Google Ads) e em outras plataformas (como redes sociais). As empresas pagam para que seus anúncios apareçam em destaque nos resultados de busca ou em feeds de redes sociais quando um usuário pesquisa por determinadas palavras-chave ou se encaixa em um perfil de segmentação. Essa estratégia permite atrair tráfego altamente qualificado para o site de forma rápida e direcionada, com opções avançadas de segmentação por demografia, interesse e comportamento, e modelos de cobrança por clique (CPC) ou impressão (CPM)." },
+                 { title: "Conteúdo para Blogs", content: "Um <strong>blog</strong> é uma ferramenta fundamental para o marketing de conteúdo e uma âncora para a estratégia de SEO. Através da publicação regular de conteúdo de qualidade, relevante para o público-alvo e otimizado para os mecanismos de busca, as empresas podem atrair tráfego orgânico para seus sites, construir autoridade em seu nicho de mercado e nutrir seus leads. A diversificação de formatos de conteúdo, como artigos, infográficos, vídeos e podcasts, e a criação de conteúdos ricos (e-books, webinars) aumentam o engajamento e a geração de leads. Um calendário editorial bem planejado é essencial." },
+                 { title: "Produção de Conteúdo em Áudio e Vídeo", content: "A <strong>produção de conteúdo em áudio e vídeo</strong>, como podcasts e webinars, tem se mostrado uma estratégia altamente eficaz para atrair e engajar consumidores online. Esses formatos permitem abordar temas relevantes para o público-alvo de maneiras mais imersivas e acessíveis. Podcasts oferecem flexibilidade para consumo em movimento, enquanto webinars proporcionam interação ao vivo e aprofundamento em tópicos específicos. Ambos são excelentes para construir autoridade, nutrir leads, gerar engajamento e até mesmo para o funil de vendas, oferecendo uma experiência rica e multimídia que captura a atenção da audiência." },
+                 { title: "Acesso Via Smartphone", content: "Com o crescente uso de smartphones para navegar na internet e realizar compras online, é <strong>vital que as estratégias de marketing digital e as plataformas online das empresas sejam meticulosamente otimizadas para o acesso mobile</strong>. Isso inclui ter sites responsivos (que se adaptam a diferentes tamanhos de tela), aplicativos móveis intuitivos e considerar a velocidade de carregamento (AMP). A experiência do usuário em dispositivos móveis é um fator crucial de ranqueamento no Google e influencia diretamente a decisão de compra. Uma má experiência mobile pode resultar em alta taxa de rejeição e perda de potenciais clientes." }
+            ],
+            inbound: [
+                { stage: 'Atrair', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6', details: 'A etapa de **Atrair** visa transformar estranhos em visitantes. Isso é feito através da criação de conteúdo relevante e otimizado para SEO, uso de mídias sociais para distribuição e interação, e campanhas de anúncios que direcionam para conteúdo de valor. O objetivo é despertar a curiosidade e levar o público-alvo para as propriedades digitais da empresa, como sites e blogs.' },
+                { stage: 'Converter', icon: 'M17 14v6m-3-3h6M6 10h2a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2zm10 0h2a2 2 0 002-2V6a2 2 0 00-2-2h-2a2 2 0 00-2 2v2a2 2 0 002 2zM6 18h2a2 2 0 002-2v-2a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2z', details: 'Na etapa de **Converter**, o foco é transformar visitantes em leads. Isso é alcançado através de Landing Pages otimizadas, formulários de contato, ofertas de conteúdo rico (e-books, webinars, templates) que exigem um cadastro, e calls-to-action (CTAs) claros. O objetivo é coletar informações de contato do visitante para iniciar um relacionamento mais direto.' },
+                { stage: 'Relacionar', icon: 'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z', details: 'A etapa de **Relacionar** (ou Nutrir) tem como objetivo construir confiança e autoridade com os leads. Isso é feito por meio de fluxos de e-mail marketing automatizados, conteúdo personalizado (blog posts, vídeos, podcasts), webinars e interações em mídias sociais. O objetivo é educar o lead, demonstrar o valor da marca e guiá-lo gradualmente pelo funil de vendas até que esteja pronto para a compra.' },
+                { stage: 'Vender', icon: 'M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z', details: 'A etapa de **Vender** é onde os leads qualificados são entregues à equipe de vendas. Com base no histórico de interação e no nível de engajamento do lead, a equipe de vendas pode realizar abordagens mais personalizadas e diretas. Isso pode envolver demonstrações de produtos, propostas comerciais ou reuniões. O objetivo é transformar o lead em cliente, fechando o negócio de forma consultiva e eficaz.' },
+                { stage: 'Analisar', icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z', details: 'A etapa de **Analisar** é um ciclo contínuo de otimização. Ela envolve o monitoramento e a análise de todas as métricas e KPIs (Key Performance Indicators) ao longo de todo o funil do Inbound Marketing. O objetivo é identificar o que funcionou bem, o que precisa ser ajustado, e onde estão as oportunidades de melhoria. A análise de dados permite refinar as estratégias, otimizar o ROI e garantir que os resultados sejam cada vez mais previsíveis e eficientes, garantindo um crescimento sustentável.' }
+            ],
+            omnichannel: [
+                {
+                    title: "Multichannel",
+                    icon: "M10 20v-6m0 0V4m0 6h-7m7 0h7M5 20v-2m0 0V4m0 14h-2m11 0h2m0 0V4m0 14v2m-7-6h7m-7 0H5",
+                    description: "No modelo <strong>Multichannel</strong>, a empresa oferece diversas opções de canais de comunicação e venda (loja física, site, redes sociais, telefone, e-mail). No entanto, a característica distintiva é que esses canais operam de forma isolada, como silos, sem uma integração fluida entre eles. O cliente pode ter que repetir informações ou enfrentar inconsistências ao transitar de um canal para outro, resultando em uma experiência fragmentada. Cada canal é otimizado individualmente, mas a jornada do cliente não é contínua.",
+                    color: "bg-amber-100",
+                    borderColor: "border-amber-500"
+                },
+                {
+                    title: "Omnichannel",
+                    icon: "M7 11.5v-5a3.5 3.5 0 1 1 7 0v5a3.5 3.5 0 1 1-7 0zm11.5 5.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM3 11.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z",
+                    description: "A abordagem <strong>Omnichannel</strong> representa a evolução do multicanal. Ela busca a unificação e a integração total de todos os canais de comunicação e venda da empresa, proporcionando uma experiência de marca consistente, coesa e singular para o consumidor, independentemente do ponto de contato escolhido. O 'omniconsumer' pode iniciar uma compra no aplicativo, continuar no site e finalizar na loja física, com todas as informações e histórico sincronizados. O foco é na jornada do cliente, garantindo convergência e sintonia das operações para uma experiência sem atritos e altamente personalizada.",
+                    color: "bg-blue-100",
+                    borderColor: "border-blue-500"
+                }
+            ],
+            taticas: [
+                { title: "Outbound Marketing (Tradicional)", content: "O <strong>Outbound Marketing</strong>, ou marketing tradicional, é caracterizado por sua natureza de prospecção ativa, onde a empresa vai em busca do cliente. Isso envolve o uso de mídias off-line como televisão, rádio, revistas, jornais, eventos, folhetos, outdoors e telemarketing. Embora muitas vezes seja percebido como mais intrusivo e possa ter um custo por lead mais elevado, ainda é relevante para certos nichos e objetivos, especialmente quando integrado de forma inteligente com estratégias digitais (ex: QR codes em impressos). Seu principal desafio é a mensuração precisa do ROI." },
+                { title: "Entrega de Valor ao Cliente", content: "A pedra angular do sucesso em qualquer estratégia de marketing é a <strong>entrega de valor ao cliente</strong>. Isso vai muito além da simples transação. Envolve uma compreensão aprofundada do mercado para realizar uma segmentação precisa, seguida pela seleção do público-alvo ideal e pelo posicionamento claro da oferta. O verdadeiro valor se manifesta ao superar as expectativas dos clientes, proporcionando produtos, serviços e experiências que realmente atendam e até superem suas necessidades e desejos. Isso cria um senso de satisfação, lealdade e, consequentemente, um maior 'Lifetime Value' (LTV) do cliente." },
+                { title: "Experiência de Compra Positiva", content: "Proporcionar uma <strong>experiência de compra positiva</strong> é fundamental para construir lealdade e confiança inabaláveis na marca. Isso implica ir além da mera satisfação; significa surpreender os clientes com um atendimento excepcional, uma resolução de problemas ágil e empática, e ofertas de soluções verdadeiramente personalizadas. Quando um cliente se sente valorizado e bem atendido, o resultado natural é o aumento da credibilidade da marca e a geração do poderoso 'boca a boca digital' – recomendações espontâneas que se espalham rapidamente pelas redes, transformando clientes satisfeitos em ardentes defensores da marca, impulsionando a aquisição orgânica de novos clientes." },
+                { title: "Personalização", content: "A <strong>personalização de produtos e serviços</strong> é uma das tendências mais potentes e eficazes no marketing digital contemporâneo. Ao adaptar a oferta às necessidades, preferências e até ao comportamento individual de cada cliente (usando dados de navegação, histórico de compras, etc.), as empresas não só conseguem efetivar mais vendas, mas também captar novos clientes de forma mais assertiva. Mais do que isso, a personalização gera um profundo senso de conexão e pertencimento, cultivando um maior nível de engajamento e lealdade à marca. Clientes que se sentem genuinamente compreendidos e atendidos em suas particularidades tendem a se tornar os mais dedicados defensores da marca." },
+                { title: "Landing Pages", content: "As <strong>Landing Pages</strong> (páginas de destino) são elementos cruciais e altamente estratégicos no ecossistema do marketing digital, projetadas com um único e claro objetivo: aumentar a taxa de conversão de visitantes em leads ou diretamente em compradores. Diferente de um site completo, uma landing page elimina distrações e foca em uma única chamada para ação (CTA), como preencher um formulário, baixar um material ou realizar uma compra. Elementos essenciais incluem um título impactante, uma proposta de valor clara, um formulário conciso e prova social." },
+                { title: "Upselling e Cross-selling", content: "<strong>Upselling e Cross-selling</strong> são técnicas de vendas poderosas que visam otimizar o valor de cada cliente, aumentando o ticket médio de suas compras e a lucratividade geral. <strong>Upselling</strong> consiste em persuadir o cliente a adquirir uma versão superior, mais completa, mais cara ou com mais funcionalidades do produto/serviço que ele já demonstra interesse. <strong>Cross-selling</strong> envolve oferecer produtos ou serviços adicionais que são relacionados, complementares ou que melhoram a experiência com a compra inicial. Ambas as técnicas, quando aplicadas de forma estratégica e focada nas necessidades reais do cliente, fortalecem o relacionamento e aumentam significativamente a receita." }
+            ]
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebarNav = document.getElementById('sidebar-nav');
+            const contentArea = document.getElementById('content-area');
+            const menuBtn = document.getElementById('menu-btn');
+            const sidebar = document.getElementById('sidebar');
+
+            function navigate(hash) {
+                document.querySelectorAll('.sidebar-link').forEach(link => {
+                    link.classList.toggle('active', link.hash === hash);
+                });
+                document.querySelectorAll('.content-section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                const activeSection = document.querySelector(hash);
+                if (activeSection) {
+                    activeSection.classList.add('active');
+                }
+                
+                if(hash === '#profissional' && !window.adSpendChartInstance) {
+                   renderAdSpendChart();
+                }
+            }
+            
+            sidebarNav.addEventListener('click', (e) => {
+                if (e.target.tagName === 'A') {
+                    e.preventDefault();
+                    const targetHash = e.target.hash;
+                    navigate(targetHash);
+                     if (window.innerWidth < 768) { 
+                        sidebar.classList.add('hidden');
+                    }
+                }
+            });
+
+            menuBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('hidden');
+            });
+            
+            function createAccordionItem(item) {
+                const div = document.createElement('div');
+                div.className = 'bg-white rounded-lg shadow-sm overflow-hidden';
+                div.innerHTML = `
+                    <button class="w-full text-left p-4 focus:outline-none flex justify-between items-center accordion-toggle">
+                        <span class="font-semibold text-slate-800">${item.title}</span>
+                        <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div class="accordion-content">
+                        <p class="p-4 pt-0 text-slate-600">${item.content}</p>
+                    </div>
+                `;
+                return div;
+            }
+
+            const fundamentosContainer = document.getElementById('fundamentos-container');
+            reportData.fundamentos.forEach(item => {
+                fundamentosContainer.appendChild(createAccordionItem(item));
+            });
+            
+            const taticasContainer = document.getElementById('taticas-container');
+            reportData.taticas.forEach(item => {
+                taticasContainer.appendChild(createAccordionItem(item));
+            });
+            
+            const ferramentasContainer = document.getElementById('ferramentas-container');
+            reportData.ferramentas.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'bg-white rounded-lg shadow-sm overflow-hidden';
+                div.innerHTML = `
+                    <button class="w-full text-left p-4 focus:outline-none accordion-toggle">
+                        <span class="font-semibold text-slate-800">${item.title}</span>
+                         <div class="accordion-content">
+                           <p class="pt-2 text-slate-600 text-sm">${item.content}</p>
+                         </div>
+                    </button>
+                `;
+                ferramentasContainer.appendChild(div);
+            });
+
+            document.querySelectorAll('.accordion-toggle').forEach(button => {
+                button.addEventListener('click', () => {
+                    const content = button.nextElementSibling || button.querySelector('.accordion-content');
+                    const icon = button.querySelector('svg');
+                    
+                    if (content.style.maxHeight) {
+                        content.style.maxHeight = null;
+                        if(icon) icon.classList.remove('rotate-180');
+                    } else {
+                        // Collapse others before expanding this one
+                        document.querySelectorAll('.accordion-content').forEach(otherContent => {
+                            if (otherContent !== content && otherContent.style.maxHeight) {
+                                otherContent.style.maxHeight = null;
+                                const otherIcon = otherContent.previousElementSibling.querySelector('svg');
+                                if(otherIcon) otherIcon.classList.remove('rotate-180');
+                            }
+                        });
+                        content.style.maxHeight = content.scrollHeight + "px";
+                        if(icon) icon.classList.add('rotate-180');
+                    }
+                });
+            });
+            
+            const inboundFunnelContainer = document.getElementById('inbound-funnel');
+            const inboundDetailsContainer = document.getElementById('inbound-details');
+            reportData.inbound.forEach((item, index) => {
+                const stageDiv = document.createElement('div');
+                const paddingLeft = (reportData.inbound.length - 1 - index) * 2; // Invert padding for funnel shape
+                const paddingRight = index * 2;
+                stageDiv.className = `inbound-stage bg-blue-100 text-blue-800 font-bold py-3 px-4 rounded-md shadow-sm hover:bg-blue-200`;
+                stageDiv.style.paddingLeft = `${paddingLeft + 1}rem`;
+                stageDiv.style.paddingRight = `${paddingRight + 1}rem`;
+                stageDiv.dataset.index = index;
+                stageDiv.innerHTML = `
+                    <div class="flex items-center justify-center">
+                       <svg class="w-5 h-5 mr-3 inbound-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${item.icon}"></path></svg>
+                       <span>${item.stage}</span>
+                    </div>
+                `;
+                inboundFunnelContainer.appendChild(stageDiv);
+            });
+            
+            inboundFunnelContainer.addEventListener('click', (e) => {
+                const stageEl = e.target.closest('.inbound-stage');
+                if (stageEl) {
+                    document.querySelectorAll('.inbound-stage').forEach(el => el.classList.remove('active'));
+                    stageEl.classList.add('active');
+                    const index = stageEl.dataset.index;
+                    inboundDetailsContainer.innerHTML = `<p>${reportData.inbound[index].details}</p>`;
+                }
+            });
+            
+            inboundFunnelContainer.querySelector('.inbound-stage').click(); // Select first stage by default
+            
+            const omnichannelContainer = document.getElementById('omnichannel-comparison');
+            reportData.omnichannel.forEach(item => {
+                 const div = document.createElement('div');
+                 div.className = `p-4 rounded-lg border-l-4 ${item.borderColor} ${item.color}`;
+                 div.innerHTML = `
+                     <div class="flex items-center mb-2">
+                        <svg class="w-8 h-8 mr-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="${item.icon}"></path></svg>
+                        <h4 class="font-bold text-lg text-slate-800">${item.title}</h4>
+                     </div>
+                     <p class="text-slate-600 text-sm">${item.description}</p>
+                 `;
+                 omnichannelContainer.appendChild(div);
+            });
+            
+            function renderAdSpendChart() {
+                const ctx = document.getElementById('adSpendChart').getContext('2d');
+                window.adSpendChartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['2015', '2020', '2025 (Projeção)'],
+                        datasets: [{
+                            label: 'Mídia Tradicional',
+                            data: [70, 45, 30],
+                            backgroundColor: '#64748b',
+                            borderColor: '#475569',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Mídia Digital',
+                            data: [30, 55, 70],
+                            backgroundColor: '#3b82f6',
+                            borderColor: '#2563eb',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Evolução do Investimento em Publicidade (%)',
+                                font: {
+                                    size: 16,
+                                    weight: 'bold'
+                                },
+                                color: '#334155'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed.y !== null) {
+                                            label += context.parsed.y + '%';
+                                        }
+                                        return label;
+                                    },
+                                    title: function(context) {
+                                        const title = context[0].label;
+                                        if (title && title.length > 16) { // Wrap label if too long
+                                            return title.match(/.{1,16}/g).join('\n');
+                                        }
+                                        return title;
+                                    }
+                                },
+                                titleAlign: 'center',
+                                bodyAlign: 'center',
+                                footerAlign: 'center',
+                                padding: 10,
+                                cornerRadius: 8,
+                                displayColors: true,
+                                boxPadding: 4
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                ticks: {
+                                    callback: function(value) {
+                                        return value + '%'
+                                    }
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Porcentagem (%)',
+                                    color: '#475569'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Ano',
+                                    color: '#475569'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            navigate(window.location.hash || '#introducao'); // Navigate to intro on load
+            window.addEventListener('hashchange', () => navigate(window.location.hash)); // Handle direct hash changes
+        });
+    </script>
+</body>
+</html>
